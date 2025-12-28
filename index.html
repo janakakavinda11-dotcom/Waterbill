@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ගිණුම් කැල්කියුලේටරය PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Abhaya+Libre:wght@400;700&family=Noto+Serif+Sinhala:wght@400;700&family=Gemunu+Libre:wght@400;700&family=Yaldevi:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --bg: #000000;
+            --card-bg: #0a0a0a;
+            --text: #ffffff;
+            --input-bg: #111111;
+            --sidebar-bg: #111111;
+            --ios-font: 'Inter', 'Noto Sans Sinhala', -apple-system, sans-serif;
+            --selected-font: 'Noto Sans Sinhala';
+        }
+
+        body, input, button, span, div { 
+            font-family: var(--selected-font), var(--ios-font);
+            transition: all 0.4s ease;
+        }
+
+        /* --- Full Liquid Glass Effect --- */
+        body.liquid-theme {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e) !important;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --sidebar-bg: rgba(0, 0, 0, 0.8);
+        }
+
+        body.liquid-theme header, 
+        body.liquid-theme .list-container, 
+        body.liquid-theme .row, 
+        body.liquid-theme .res-card, 
+        body.liquid-theme .main-input,
+        body.liquid-theme .u-val,
+        body.liquid-theme #floatingCalc {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        body.liquid-theme .sidebar {
+            backdrop-filter: blur(25px);
+            background: rgba(0, 0, 0, 0.7) !important;
+        }
+
+        body { background-color: var(--bg); color: var(--text); margin: 0; overflow: hidden; }
+
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+        }
+        .splash-logo { font-size: 50px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .loader { width: 150px; height: 3px; background: #222; margin-top: 30px; border-radius: 5px; overflow: hidden; }
+        .loader-bar { width: 0; height: 100%; background: var(--primary); animation: loading 2.5s forwards; }
+        @keyframes loading { to { width: 100%; } }
+
+        #main-app { opacity: 0; transition: opacity 1s ease; height: 100vh; overflow-y: auto; }
+
+        header { display: flex; align-items: center; padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--primary); position: sticky; top: 0; z-index: 100; }
+        .openbtn { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--primary); }
+        .neon-title { font-size: 16px; font-weight: 700; color: #fff; text-align: center; flex-grow: 1; text-shadow: 0 0 10px var(--primary); }
+        .header-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+
+        .sidebar { height: 100%; width: 0; position: fixed; z-index: 4000; top: 0; left: 0; background-color: var(--sidebar-bg); overflow-x: hidden; transition: 0.4s; border-right: 1px solid var(--primary); }
+        .profile-section { padding: 40px 20px 20px; text-align: center; }
+        .profile-pic-container { width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; border: 2px solid var(--primary); overflow: hidden; cursor: pointer; }
+        .profile-pic-container img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name-input { background: transparent; border: none; color: #fff; text-align: center; font-size: 16px; font-weight: bold; width: 100%; }
+
+        .app-box { padding: 20px; max-width: 450px; margin: auto; position: relative; z-index: 60; }
+        .main-input { width: 100%; padding: 15px; background: var(--input-bg); color: var(--text); border: 2px solid var(--primary); border-radius: 50px; font-size: 18px; outline: none; box-sizing: border-box; margin-bottom: 20px; }
+        
+        .list-container { background: var(--card-bg); padding: 10px; border-radius: 20px; border: 1px solid var(--primary); }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .u-val { width: 80px; padding: 8px; background: var(--input-bg); color: var(--text); border: 1px solid var(--primary); border-radius: 10px; text-align: center; }
+
+        .btn-calc { width: 100%; padding: 18px; background: transparent; color: #fff; border: 3px solid var(--primary); border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px var(--primary); }
+
+        #floatingCalc { position: fixed; top: 100px; right: 20px; width: 260px; background: rgba(10, 10, 10, 0.98); border: 2px solid var(--primary); border-radius: 20px; z-index: 3000; display: none; box-shadow: 0 0 20px var(--primary); }
+        .calc-header { padding: 10px; background: var(--primary); color: #000; border-radius: 18px 18px 0 0; cursor: move; display: flex; justify-content: space-between; font-weight: bold; }
+        .calc-display { width: 100%; height: 50px; background: #000; color: #fff; text-align: right; padding: 10px; font-size: 20px; border: none; box-sizing: border-box; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; }
+        .c-btn { padding: 12px; background: #222; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+
+        .res-card { background: var(--card-bg); padding: 15px; margin-top: 15px; border-radius: 15px; border: 2px solid var(--primary); line-height: 1.8; position: relative; }
+        .res-click-btn { position: absolute; right: 15px; bottom: 15px; background: var(--primary); color: #000; border: none; padding: 7px 15px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        #zoomOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 8000; display: none; align-items: center; justify-content: center; }
+        .zoom-content { width: 85%; max-width: 350px; background: #000; border: 3px solid var(--primary); border-radius: 30px; padding: 30px; transform: scale(0.3); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px var(--primary); }
+        #zoomOverlay.show .zoom-content { transform: scale(1); }
+
+        #fontMenu { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; max-height: 350px; background: #0a0a0a; border: 2px solid var(--primary); border-radius: 20px; z-index: 5000; display: none; overflow-y: auto; padding: 15px; }
+        .font-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; color: #fff; text-align: center; }
+
+        .fab-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1500; transition: 0.3s; }
+        .action-btn { width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; background: var(--primary); color: #000; font-size: 22px; border: 2px solid #fff; box-shadow: 0 0 10px var(--primary); transition: 0.3s; }
+        .fab-container.minimized .action-btn:not(.btn-min) { transform: scale(0) translateY(50px); opacity: 0; pointer-events: none; height: 0; margin: 0; }
+        .btn-min { background: #000; color: var(--primary); border: 2px solid var(--primary); }
+
+        #clockOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .clock { width: 240px; height: 240px; border: 8px solid var(--primary); border-radius: 50%; position: relative; box-shadow: 0 0 25px var(--primary); margin-bottom: 20px; }
+        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: #fff; transform: translateX(-50%); }
+        .hour-hand { width: 7px; height: 55px; background: var(--primary); }
+        .min-hand { width: 5px; height: 85px; }
+        .sec-hand { width: 2px; height: 95px; background: #ff3b30; }
+        
+        .digital-clock { font-size: 32px; font-weight: bold; color: var(--primary); text-shadow: 0 0 15px var(--primary); margin-bottom: 10px; }
+        
+        #magic-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50; }
+        .total-box { background: #008148; color: #fff; padding: 15px; border-radius: 20px; margin-top: 20px; text-align: center; font-weight: bold; border: 2px solid #fff; }
+        .balance-box { background: #ff3b30; color: #fff; padding: 15px; border-radius: 20px; margin-top: 10px; text-align: center; font-weight: bold; border: 2px solid #fff; }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-logo">💧</div>
+        <div class="loader"><div class="loader-bar"></div></div>
+    </div>
+
+    <div id="zoomOverlay" onclick="closeZoom()">
+        <div class="zoom-content" onclick="event.stopPropagation()">
+            <div id="zoomBody" style="color:#fff; font-size:18px; line-height:2; text-align:center;"></div>
+            <div style="margin-top:25px; color:var(--primary); font-weight:bold; cursor:pointer; text-align:center;" onclick="closeZoom()">DONE</div>
+        </div>
+    </div>
+
+    <div id="fontMenu">
+        <h4 style="color:var(--primary); text-align:center;">Fonts</h4>
+        <div id="fontList"></div>
+    </div>
+
+    <div id="floatingCalc">
+        <div class="calc-header" id="calcHeader"><span>Calculator</span><span onclick="closeCalc()" style="cursor:pointer;">&times;</span></div>
+        <input type="text" id="cdisp" class="calc-display" readonly placeholder="0">
+        <div class="calc-grid">
+            <button class="c-btn" onclick="cClr()">C</button><button class="c-btn" onclick="cDel()">⌫</button><button class="c-btn" onclick="cApp('/')">/</button><button class="c-btn" onclick="cApp('*')">*</button>
+            <button class="c-btn" onclick="cApp('7')">7</button><button class="c-btn" onclick="cApp('8')">8</button><button class="c-btn" onclick="cApp('9')">9</button><button class="c-btn" onclick="cApp('-')">-</button>
+            <button class="c-btn" onclick="cApp('4')">4</button><button class="c-btn" onclick="cApp('5')">5</button><button class="c-btn" onclick="cApp('6')">6</button><button class="c-btn" onclick="cApp('+')">+</button>
+            <button class="c-btn" onclick="cApp('1')">1</button><button class="c-btn" onclick="cApp('2')">2</button><button class="c-btn" onclick="cApp('3')">3</button><button class="c-btn" onclick="cRes()" style="background:var(--primary); color:#000;">=</button>
+        </div>
+    </div>
+
+    <div id="clockOverlay" onclick="hideClock()">
+        <div class="clock">
+            <div class="hand hour-hand" id="hour-h"></div>
+            <div class="hand min-hand" id="min-h"></div>
+            <div class="hand sec-hand" id="sec-h"></div>
+        </div>
+        <div id="digital-t" class="digital-clock">00:00:00</div>
+        <div id="date-d" style="color:#fff; font-size:18px; text-align:center; padding: 0 20px;"></div>
+    </div>
+
+    <div id="main-app">
+        <canvas id="magic-canvas"></canvas>
+
+        <div id="settingsSidebar" class="sidebar">
+            <div class="profile-section">
+                <span style="color:var(--primary); font-size:30px; cursor:pointer; position:absolute; right:20px; top:10px;" onclick="closeNav()">&times;</span>
+                <div class="profile-pic-container" onclick="triggerImgUpload()">
+                    <img id="profileImg" src="https://via.placeholder.com/80">
+                    <input type="file" id="imgUpload" hidden onchange="uploadImg(this)">
+                </div>
+                <input type="text" id="profileName" class="profile-name-input" value="ඔබේ නම" onchange="saveProfile()">
+                <button onclick="cycleMagicEffect()" style="background:var(--primary); border:none; border-radius:10px; padding:8px; margin-top:10px; font-weight:bold; cursor:pointer;">MAGIC EFFECTS</button>
+            </div>
+            <div style="padding:20px;">
+                <label style="color:#888;">Base Amount (744)</label>
+                <input type="number" id="setBase" class="main-input" value="744" style="font-size:14px; padding:10px;">
+                <label style="color:#888;">Fixed Charge (193)</label>
+                <input type="number" id="setFixed" class="main-input" value="193" style="font-size:14px; padding:10px;">
+                <div class="color-grid" id="colorPalette" style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <header>
+            <button class="openbtn" onclick="openNav()">☰</button>
+            <div class="neon-title">
+                <img id="headerProfileImg" class="header-avatar" src="https://via.placeholder.com/45"><br>
+                <span id="headerProfileName" style="font-size:11px; opacity:0.8;">User</span><br>
+                WATER BILL PRO
+            </div>
+        </header>
+
+        <div class="app-box">
+            <input type="number" id="cash" class="main-input" placeholder="මුළු මුදල">
+            <div class="list-container" id="userList"></div>
+            <button class="btn-calc" onclick="calculate()">ගණනය කරන්න</button>
+            <div id="res"></div>
+            <div style="text-align:center; padding:30px; font-size:12px; color:#555;">© Janaka Kavinda</div>
+        </div>
+
+        <div class="fab-container" id="fab">
+            <div class="action-btn" onclick="toggleFontMenu()">අA</div>
+            <div class="action-btn" onclick="toggleLiquidTheme()" style="background:#fff;">🍏</div>
+            <div class="action-btn" onclick="showCalc()" style="background:var(--primary); color:#000;">🧮</div>
+            <div class="action-btn" onclick="showClock()" style="background:#ffcc00;">🕒</div>
+            <div class="action-btn btn-min" onclick="toggleMin()" id="minIco">−</div>
+        </div>
+    </div>
+
+    <script>
+        const names = ["තිසාහමී", "ටිකිරිබංඩා", "චම්පි", "පුංචිබංඩා", "සුදුබංඩා", "හාමූ", "ගුණවතී", "ආරියසේන"];
+        const sinhalaFonts = ["Noto Sans Sinhala", "Abhaya Libre", "Gemunu Libre", "Noto Serif Sinhala", "Yaldevi"];
+        const neonColors = ['#00d2ff', '#ff0055', '#00ff44', '#ffff00', '#ff00ff', '#ff9900', '#00ffff'];
+        const magicIcons = ["❄️", "⭐", "💧", "✨"];
+        let currentMagic = -1, particles = [];
+        const canvas = document.getElementById('magic-canvas'), ctx = canvas.getContext('2d');
+
+        window.onload = () => {
+            setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('main-app').style.opacity = '1'; }, 3000);
+            const listDiv = document.getElementById('userList'), fontList = document.getElementById('fontList'), palette = document.getElementById('colorPalette');
+            let saved = JSON.parse(localStorage.getItem('savedUnits') || "{}");
+            names.forEach(n => { listDiv.innerHTML += `<div class="row"><span>👤 ${n}</span><input type="number" class="u-val" data-name="${n}" value="${saved[n] || ""}" placeholder="0"></div>`; });
+            sinhalaFonts.forEach(f => { fontList.innerHTML += `<div class="font-item" style="font-family:'${f}'" onclick="changeFont('${f}')">${f}</div>`; });
+            neonColors.forEach(c => { palette.innerHTML += `<div style="width:25px; height:25px; border-radius:50%; background:${c}; cursor:pointer;" onclick="changeThemeColor('${c}')"></div>`; });
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            loadProfile(); animateMagic();
+        };
+
+        function calculate() {
+            const bill = parseFloat(document.getElementById('cash').value) || 0;
+            const base = parseFloat(document.getElementById('setBase').value) || 744, fixed = parseFloat(document.getElementById('setFixed').value) || 193;
+            let inputs = document.querySelectorAll('.u-val'), totalU = 0, active = [];
+            inputs.forEach(i => { let v = parseFloat(i.value) || 0; if(v > 0) { totalU += v; active.push({n: i.dataset.name, u: v}); } });
+            if(bill === 0 || totalU === 0) return alert("දත්ත ඇතුළත් කරන්න.");
+            const ppu = Math.round((bill - base) / totalU);
+            let html = "", sumAll = 0;
+            active.forEach(p => {
+                let ut = (p.u * ppu) + fixed; sumAll += ut;
+                let det = `👤 <b>${p.n}</b><br>ඒකක: ${p.u}<br>මිල: Rs. ${ppu}<br>ගාස්තු: Rs. ${fixed}<br>මුළු: Rs. <b>${ut}</b>`;
+                html += `<div class="res-card">${det}<button class="res-click-btn" onclick="zoomResult(\`${det}\`)">Click</button></div>`;
+            });
+
+            // Calculate Balance
+            let balance = bill - sumAll;
+
+            document.getElementById('res').innerHTML = html + 
+                `<div class="total-box">සියල්ලගේ එකතුව: Rs. ${sumAll}</div>` +
+                `<div class="balance-box">ඉතිරි මුදල: Rs. ${balance}</div>`;
+            
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function zoomResult(content) { const o = document.getElementById('zoomOverlay'); document.getElementById('zoomBody').innerHTML = content; o.style.display = 'flex'; setTimeout(() => o.classList.add('show'), 10); }
+        function closeZoom() { const o = document.getElementById('zoomOverlay'); o.classList.remove('show'); setTimeout(() => o.style.display = 'none', 300); }
+        function toggleMin() { document.getElementById('fab').classList.toggle('minimized'); document.getElementById('minIco').innerText = document.getElementById('fab').classList.contains('minimized') ? "+" : "−"; }
+        function toggleFontMenu() { const m = document.getElementById('fontMenu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+        function changeFont(f) { document.documentElement.style.setProperty('--selected-font', f); toggleFontMenu(); }
+        function toggleLiquidTheme() { document.body.classList.toggle('liquid-theme'); }
+        function changeThemeColor(c) { document.documentElement.style.setProperty('--primary', c); localStorage.setItem('neonColor', c); }
+        function openNav() { document.getElementById("settingsSidebar").style.width = "280px"; }
+        function closeNav() { document.getElementById("settingsSidebar").style.width = "0"; }
+        function showCalc() { document.getElementById('floatingCalc').style.display = 'block'; }
+        function closeCalc() { document.getElementById('floatingCalc').style.display = 'none'; }
+        function cApp(v) { document.getElementById('cdisp').value += v; }
+        function cClr() { document.getElementById('cdisp').value = ''; }
+        function cDel() { let v = document.getElementById('cdisp').value; document.getElementById('cdisp').value = v.slice(0,-1); }
+        function cRes() { try { document.getElementById('cdisp').value = eval(document.getElementById('cdisp').value); } catch { cClr(); } }
+
+        function showClock() { document.getElementById('clockOverlay').style.display = 'flex'; updateClock(); }
+        function hideClock() { document.getElementById('clockOverlay').style.display = 'none'; }
+        function updateClock() {
+            const n = new Date(); 
+            document.getElementById('sec-h').style.transform = `translateX(-50%) rotate(${(n.getSeconds()/60)*360}deg)`;
+            document.getElementById('min-h').style.transform = `translateX(-50%) rotate(${(n.getMinutes()/60)*360}deg)`;
+            document.getElementById('hour-h').style.transform = `translateX(-50%) rotate(${(n.getHours()/12)*360+(n.getMinutes()/60)*30}deg)`;
+            document.getElementById('digital-t').innerText = n.getHours().toString().padStart(2, '0') + ":" + n.getMinutes().toString().padStart(2, '0') + ":" + n.getSeconds().toString().padStart(2, '0');
+            const days = ["ඉරිදා", "සඳුදා", "අඟහරුවාදා", "බදාදා", "බ්‍රහස්පතින්දා", "සිකුරාදා", "සෙනසුරාදා"];
+            const months = ["ජනවාරි", "පෙබරවාරි", "මාර්තු", "අප්‍රේල්", "මැයි", "ජූනි", "ජූලි", "අගෝස්තු", "සැප්තැම්බර්", "ඔක්තෝබර්", "නොවැම්බර්", "දෙසැම්බර්"];
+            document.getElementById('date-d').innerHTML = `${days[n.getDay()]}<br>${n.getFullYear()} ${months[n.getMonth()]} ${n.getDate()}`;
+            if (document.getElementById('clockOverlay').style.display === 'flex') requestAnimationFrame(updateClock);
+        }
+
+        function triggerImgUpload() { document.getElementById('imgUpload').click(); }
+        function uploadImg(i) { if (i.files && i.files[0]) { const r = new FileReader(); r.onload = (e) => { const d = e.target.result; document.getElementById('profileImg').src = d; document.getElementById('headerProfileImg').src = d; localStorage.setItem('uImg', d); }; r.readAsDataURL(i.files[0]); } }
+        function saveProfile() { const n = document.getElementById('profileName').value; document.getElementById('headerProfileName').innerText = n; localStorage.setItem('uName', n); }
+        function loadProfile() {
+            if(localStorage.getItem('uName')) { const n = localStorage.getItem('uName'); document.getElementById('profileName').value = n; document.getElementById('headerProfileName').innerText = n; }
+            if(localStorage.getItem('uImg')) { const i = localStorage.getItem('uImg'); document.getElementById('profileImg').src = i; document.getElementById('headerProfileImg').src = i; }
+            if(localStorage.getItem('neonColor')) changeThemeColor(localStorage.getItem('neonColor'));
+        }
+
+        function cycleMagicEffect() { currentMagic = (currentMagic + 1) % magicIcons.length; particles = []; for(let i=0; i<30; i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*20+10, v:Math.random()*2+1, i:magicIcons[currentMagic]}); }
+        function animateMagic() { ctx.clearRect(0, 0, canvas.width, canvas.height); if(currentMagic !== -1) particles.forEach(p => { p.y += p.v; if(p.y > canvas.height) p.y = -20; ctx.font = `${p.s}px serif`; ctx.fillText(p.i, p.x, p.y); }); requestAnimationFrame(animateMagic); }
+    </script>
+</body>
+</html>
